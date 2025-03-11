@@ -1,0 +1,64 @@
+.container {
+    padding: 2rem;
+    background-color: white;
+    color: black;
+  }
+  
+  .heading {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+  
+  .gridSection {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .gridTitle {
+    text-align: right;
+    font-weight: 600;
+    margin-right: 1rem;
+    width: 12rem;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    background-color: white;
+  }
+  
+  .cell {
+    width: 5rem;
+    height: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    border: 1px solid #ccc;
+  }
+  
+  .floatingButton {
+    position: fixed;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #007bff;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 50%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  
+  .floatingButton:hover {
+    background-color: #0056b3;
+  }
+  
+  .icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
