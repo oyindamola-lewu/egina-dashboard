@@ -52,7 +52,7 @@ export default function ProductionKPI() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.heading}>Production KPI View</h1>
+      <h1 className={styles.heading}>Well Health View</h1>
       <GridSection title="GOR Deviation" wells={wells} colorKey="gorColor" />
       <GridSection title="Water Breakthrough Risk" wells={wells} colorKey="waterRiskColor" />
       <GridSection title="Pressure Stability" wells={wells} colorKey="pressureColor" />
