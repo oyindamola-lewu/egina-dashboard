@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db"; // Ensure correct path
-import { RowDataPacket } from "mysql2/promise";
 
 // Define Well interface
-interface Well extends RowDataPacket {
+interface Well {
   id: number;
   liquid_efficiency: number;
   oil_efficiency: number;
@@ -24,7 +23,7 @@ const getColor = (value: number, limits: { green: number; yellow: number }): str
 
 export async function GET() {
   try {
-    const [rows] = await db.query<Well[]>(`
+    const result = await db.query(`
       SELECT id, liquid_efficiency, oil_efficiency, gas_efficiency,
              gor_deviation, water_breakthrough_risk, pressure_stability,
              sand_risk, choke_stability
@@ -44,7 +43,7 @@ export async function GET() {
     };
 
     // Map and return updated well data
-    const wells = (rows as Well[]).map((well) => ({
+    const wells = result.rows.map((well: Well) => ({
       id: well.id,
       lpeColor: getColor(well.liquid_efficiency, limits.liquid_efficiency),
       opeColor: getColor(well.oil_efficiency, limits.oil_efficiency),
