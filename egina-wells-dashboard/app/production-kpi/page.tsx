@@ -5,6 +5,7 @@ import Link from "next/link";
 import styles from "./styles.module.css";
 import ArrowIcon from "@/components/ArrowIcon";
 import WellOverlay from "@/components/WellOverlay";
+import { WellMetrics } from "@/components/Chart";
 
 // Define Well interface
 interface Well {
@@ -36,6 +37,7 @@ const GridSection: React.FC<{ title: string; wells: Well[]; colorKey: keyof Omit
 export default function ProductionKPI() {
   const [wells, setWells] = useState<Well[]>([]);
   const [selectedWell, setSelectedWell] = useState<number | null>(null);
+  const [selectedKPI, setSelectedKPI] = useState<keyof WellMetrics | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -51,15 +53,36 @@ export default function ProductionKPI() {
     fetchData();
   }, []);
 
+  const handleWellClick = (id: number, kpiType: keyof WellMetrics) => {
+    setSelectedWell(id);
+    setSelectedKPI(kpiType);
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.heading}>Production KPI View</h1>
-      <GridSection title="Liquid Production Efficiency (LPE%)" wells={wells} colorKey="lpeColor" onWellClick={setSelectedWell} />
-      <GridSection title="Oil Production Efficiency (OPE%)" wells={wells} colorKey="opeColor" onWellClick={setSelectedWell} />
-      <GridSection title="Gas Production Efficiency (GPE%)" wells={wells} colorKey="gpeColor" onWellClick={setSelectedWell} />
+      <GridSection
+        title="Liquid Production Efficiency (LPE%)"
+        wells={wells}
+        colorKey="lpeColor"
+        onWellClick={(id) => handleWellClick(id, "liquid_production")}
+      />
+      <GridSection
+        title="Oil Production Efficiency (OPE%)"
+        wells={wells}
+        colorKey="opeColor"
+        onWellClick={(id) => handleWellClick(id, "oil_production")}
+      />
+      <GridSection
+        title="Gas Production Efficiency (GPE%)"
+        wells={wells}
+        colorKey="gpeColor"
+        onWellClick={(id) => handleWellClick(id, "gas_production")}
+      />
 
-      <WellOverlay wellId={selectedWell} onClose={() => setSelectedWell(null)} />
-
+      {/* Pass both selectedWell and selectedKPI to WellOverlay */}
+      <WellOverlay wellId={selectedWell} kpiType={selectedKPI} onClose={() => setSelectedWell(null)} />
+    
       <Link href="/well-health">
         <button className={styles.floatingButton}>
           <ArrowIcon className={styles.icon} />

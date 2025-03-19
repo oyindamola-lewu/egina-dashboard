@@ -6,30 +6,28 @@ import Chart, { WellMetrics } from "./Chart";
 
 interface WellOverlayProps {
   wellId: number | null;
+  kpiType: keyof WellMetrics | null;
   onClose: () => void;
 }
 
-const dataKeyMap: Record<string, keyof WellMetrics> = {
-  "Production Trend": "liquid_production",
-  //"Predicted Output": "oil_production",
-};
 
-const WellOverlay: React.FC<WellOverlayProps> = ({ wellId, onClose }) => {
-  if (wellId === null) return null; // Don't render if no well is selected
+const WellOverlay: React.FC<WellOverlayProps> = ({ wellId, kpiType, onClose }) => {
+  if (wellId === null || kpiType === null) return null;
 
-  return (
+
+return (
     <div className={styles.overlay}>
       <div className={styles.card}>
         <button className={styles.closeButton} onClick={onClose}>✕</button>
         <h2 className={styles.title}>Well W{wellId.toString().padStart(3, "0")}</h2>
         <div className={styles.chartsContainer}>
-          {Object.entries(dataKeyMap).map(([title, dataKey]) => (
-            <Chart key={title} title={title} wellId={wellId} dataKey={dataKey} />
-          ))}
+          {/* Dynamically use the kpiType for the Chart */}
+          <Chart key={kpiType} title={kpiType.replace("_", " ")} wellId={wellId} dataKey={kpiType} />
         </div>
       </div>
     </div>
   );
 };
+
 
 export default WellOverlay;
