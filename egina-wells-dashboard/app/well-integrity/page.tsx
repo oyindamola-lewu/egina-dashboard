@@ -7,31 +7,30 @@ import ArrowIconLeft from "@/components/ArrowIconLeft";
 
 interface Well {
   id: number;
-  sandRiskColor: string;
-  chokeColor: string;
+  sandRiskColor?: string;
+  chokeColor?: string;
 }
 
-// Cell component
-const Cell: React.FC<{ id: number; color?: string }> = ({ id, color = "#4A4A4A" }) => (
-  <div className={styles.cell} style={{ backgroundColor: typeof color === "string" ? color : "#4A4A4A" }}>
-    {`W0${id.toString().padStart(2, "0")}`}
-  </div>
-);
-
-// Grid section component
-const GridSection: React.FC<{ title: string; wells: Well[]; colorKey: keyof Omit<Well, "id"> }> = ({ title, wells, colorKey }) => (
-  <div className={styles.gridSection}>
-    <h2 className={styles.gridTitle}>{title}</h2>
-    <div className={styles.grid}>
-      {wells.map((well) => (
-        <Cell key={well.id} id={well.id} color={well[colorKey] as string | undefined} />
-      ))}
+const WellCard: React.FC<{ well: Well; onClick: () => void }> = ({ well, onClick }) => (
+  <div className={styles.wellCard} onClick={onClick}>
+    <div className={styles.wellHeader}>{`W0${well.id.toString().padStart(2, "0")}`}</div>
+    <div className={styles.metrics}>
+      <div className={styles.metricRow}>
+        <span className={styles.metricLabel}>Sand Risk</span>
+        <div className={styles.metricBar} style={{ backgroundColor: well.sandRiskColor }}></div>
+      </div>
+      <div className={styles.metricRow}>
+        <span className={styles.metricLabel}>Jumper Pressure</span>
+        <div className={styles.metricBar} style={{ backgroundColor: well.chokeColor }}></div>
+      </div>
     </div>
   </div>
 );
 
-export default function ProductionKPI() {
+export default function WellIntegrity() {
   const [wells, setWells] = useState<Well[]>([]);
+  const [selectedWell, setSelectedWell] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -39,10 +38,11 @@ export default function ProductionKPI() {
         const res = await fetch("/api/wells");
         if (!res.ok) throw new Error("Failed to fetch wells data");
         const data: Well[] = await res.json();
-        console.log("Fetched Wells Data:", data);
         setWells(data);
       } catch (error) {
         console.error("Error fetching wells:", error);
+      } finally {
+        setLoading(false);
       }
     }
     fetchData();
@@ -52,8 +52,15 @@ export default function ProductionKPI() {
     <div className={styles.container}>
       <h1 className={styles.heading}>Well Integrity View</h1>
 
-      <GridSection title="Sand Risk" wells={wells} colorKey="sandRiskColor" />
-      <GridSection title="Choke Stability" wells={wells} colorKey="chokeColor" />
+      {loading ? (
+        <div className={styles.loader}>Loading wells...</div>
+      ) : (
+        <div className={styles.grid}>
+          {wells.map((well) => (
+            <WellCard key={well.id} well={well} onClick={() => setSelectedWell(well.id)} />
+          ))}
+        </div>
+      )}
 
       <Link href="/well-health">
         <button className={styles.floatingButtonLeft}>

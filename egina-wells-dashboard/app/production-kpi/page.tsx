@@ -14,21 +14,23 @@ interface Well {
   gpeColor?: string;
 }
 
-// Cell component
-const Cell: React.FC<{ id: number; color?: string; onClick: () => void }> = ({ id, color = "#4A4A4A", onClick }) => (
-  <div className={styles.cell} style={{ backgroundColor: color }} onClick={onClick}>
-    {`W0${id.toString().padStart(2, "0")}`}
-  </div>
-);
-
-// Grid section component
-const GridSection: React.FC<{ title: string; wells: Well[]; colorKey: keyof Omit<Well, "id">; onWellClick: (id: number) => void }> = ({ title, wells, colorKey, onWellClick }) => (
-  <div className={styles.gridSection}>
-    <h2 className={styles.gridTitle}>{title}</h2>
-    <div className={styles.grid}>
-      {wells.map((well) => (
-        <Cell key={well.id} id={well.id} color={well[colorKey] as string | undefined} onClick={() => onWellClick(well.id)} />
-      ))}
+// Well card component
+const WellCard: React.FC<{ well: Well; onClick: () => void }> = ({ well, onClick }) => (
+  <div className={styles.wellCard} onClick={onClick}>
+    <div className={styles.wellHeader}>{`W0${well.id.toString().padStart(2, "0")}`}</div>
+    <div className={styles.metrics}>
+      <div className={styles.metricRow}>
+        <span className={styles.metricLabel}>LPE%</span>
+        <div className={styles.metricBar} style={{ backgroundColor: well.lpeColor }}></div>
+      </div>
+      <div className={styles.metricRow}>
+        <span className={styles.metricLabel}>OPE%</span>
+        <div className={styles.metricBar} style={{ backgroundColor: well.opeColor }}></div>
+      </div>
+      <div className={styles.metricRow}>
+        <span className={styles.metricLabel}>GPE%</span>
+        <div className={styles.metricBar} style={{ backgroundColor: well.gpeColor }}></div>
+      </div>
     </div>
   </div>
 );
@@ -36,6 +38,7 @@ const GridSection: React.FC<{ title: string; wells: Well[]; colorKey: keyof Omit
 export default function ProductionKPI() {
   const [wells, setWells] = useState<Well[]>([]);
   const [selectedWell, setSelectedWell] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -46,6 +49,8 @@ export default function ProductionKPI() {
         setWells(data);
       } catch (error) {
         console.error("Error fetching wells:", error);
+      } finally {
+        setLoading(false);
       }
     }
     fetchData();
@@ -54,11 +59,20 @@ export default function ProductionKPI() {
   return (
     <div className={styles.container}>
       <h1 className={styles.heading}>Production KPI View</h1>
-      <GridSection title="Liquid Production Efficiency (LPE%)" wells={wells} colorKey="lpeColor" onWellClick={setSelectedWell} />
-      <GridSection title="Oil Production Efficiency (OPE%)" wells={wells} colorKey="opeColor" onWellClick={setSelectedWell} />
-      <GridSection title="Gas Production Efficiency (GPE%)" wells={wells} colorKey="gpeColor" onWellClick={setSelectedWell} />
 
-      <WellOverlay wellId={selectedWell} onClose={() => setSelectedWell(null)} />
+      {loading ? (
+        <div className={styles.loader}>Loading wells...</div>
+      ) : (
+        <div className={styles.grid}>
+          {wells.map((well) => (
+            <WellCard key={well.id} well={well} onClick={() => setSelectedWell(well.id)} />
+          ))}
+        </div>
+      )}
+
+      {selectedWell !== null && (
+        <WellOverlay wellId={selectedWell} onClose={() => setSelectedWell(null)} />
+      )}
 
       <Link href="/well-health">
         <button className={styles.floatingButton}>

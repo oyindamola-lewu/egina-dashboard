@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <h1 className="text-4xl font-bold text-black">EGINA WELL PERFORMANCE</h1>
+      <h1 className="text-4xl font-bold text-black">EGINA WELL STATUS</h1>
       </div>
   );
 }

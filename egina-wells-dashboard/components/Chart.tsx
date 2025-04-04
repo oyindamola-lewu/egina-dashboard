@@ -6,13 +6,12 @@ import styles from "./Chart.module.css";
 
 interface ChartProps {
   title: string;
-  dataKey: keyof WellMetrics; // Ensures only valid keys are used
-  wellId: number; // ✅ Ensure the chart gets data for a specific well
+  dataKey: keyof WellMetrics;
+  wellId: number; // ✅ Use `id` directly instead of `well_id`
 }
 
 export interface WellMetrics {
   id: number;
-  well_id: number;
   date: string; // Store dates as strings in ISO format
   liquid_production: number;
   oil_production: number;
@@ -30,27 +29,34 @@ const Chart: React.FC<ChartProps> = ({ title, dataKey, wellId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log(`Fetching data for wellId: ${wellId} and dataKey: ${dataKey}`);
+  
         const response = await fetch(`/api/well-metrics?wellId=${wellId}`);
-        if (!response.ok) throw new Error("Failed to fetch data");
-
         const result: WellMetrics[] = await response.json();
-
-        // ✅ Filter data to show only the selected well's metrics
-        const filteredData = result
-          .filter((item) => item.well_id === wellId) // Only use data for this well
-          .map((item) => ({
-            date: item.date, // Assuming API returns date as YYYY-MM-DD
-            value: Number(item[dataKey]), // Ensure it's always a number
-          }));
-
+  
+        console.log("API Response:", result); // ✅ Debugging API response
+  
+        if (!Array.isArray(result) || result.length === 0) {
+          console.warn("No data received for wellId:", wellId);
+          setData([]); // Ensure no empty chart renders
+          return;
+        }
+  
+        const filteredData = result.map((item) => ({
+          date: item.date,
+          value: Number(item[dataKey]),
+        }));
+  
+        console.log("Filtered Chart Data:", filteredData); // ✅ Check chart data
+  
         setData(filteredData);
       } catch (error) {
         console.error("Error fetching chart data:", error);
       }
     };
-
+  
     fetchData();
-  }, [dataKey, wellId]); // ✅ Re-fetch if wellId or dataKey changes
+  }, [dataKey, wellId]); 
 
   return (
     <div className={styles.chart}>
